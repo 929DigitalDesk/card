@@ -3,93 +3,220 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Card Generator</title>
+  <title>Student Card Generator</title>
   <style>
-    body {
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
       font-family: Arial, sans-serif;
+    }
+    body {
       background-color: #f4f6f9;
+      padding: 30px 15px;
       display: flex;
       justify-content: center;
       align-items: center;
       min-height: 100vh;
-      margin: 0;
     }
-    .card-generator {
+    .wrapper {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 30px;
       background: #ffffff;
-      padding: 25px;
-      border-radius: 10px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      max-width: 850px;
       width: 100%;
-      max-width: 400px;
     }
-    .card-generator h2 {
-      margin-top: 0;
+    .form-box, .preview-box {
+      flex: 1;
+      min-width: 280px;
+    }
+    h2 {
       margin-bottom: 20px;
       color: #333;
       text-align: center;
+      font-size: 20px;
     }
     .form-group {
       margin-bottom: 15px;
     }
     .form-group label {
       display: block;
-      margin-bottom: 5px;
+      margin-bottom: 6px;
       font-weight: bold;
-      color: #555;
+      color: #444;
+      font-size: 14px;
     }
     .form-group input,
     .form-group select {
       width: 100%;
       padding: 10px;
       border: 1px solid #ccc;
-      border-radius: 5px;
-      box-sizing: border-box;
+      border-radius: 6px;
       font-size: 14px;
     }
-    .btn-submit {
+    .btn {
       width: 100%;
       padding: 12px;
       background-color: #007bff;
       border: none;
-      border-radius: 5px;
+      border-radius: 6px;
       color: white;
       font-size: 16px;
-      cursor: pointer;
       font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
     }
-    .btn-submit:hover {
+    .btn:hover {
       background-color: #0056b3;
+    }
+
+    /* Card Output Styling */
+    .id-card {
+      width: 300px;
+      min-height: 420px;
+      background: linear-gradient(135deg, #1e3c72, #2a5298);
+      border-radius: 12px;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      margin: 0 auto;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .id-card h3 {
+      text-transform: uppercase;
+      font-size: 18px;
+      letter-spacing: 1px;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+      padding-bottom: 10px;
+    }
+    .profile-photo {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      border: 3px solid white;
+      object-fit: cover;
+      margin: 15px auto;
+      background-color: #eee;
+      display: block;
+    }
+    .card-details {
+      text-align: left;
+      background: rgba(255, 255, 255, 0.15);
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+    .card-details p {
+      margin-bottom: 8px;
+    }
+    .card-details p:last-child {
+      margin-bottom: 0;
+    }
+    .card-details strong {
+      color: #ffd700;
+    }
+    .card-footer {
+      font-size: 11px;
+      opacity: 0.8;
+      margin-top: 15px;
     }
   </style>
 </head>
 <body>
 
-  <div class="card-generator">
+<div class="wrapper">
+  
+  <!-- Left Side: Form -->
+  <div class="form-box">
     <h2>Card Generator</h2>
     <form id="cardForm">
       
-      <!-- Name Field -->
+      <!-- Student Name -->
       <div class="form-group">
         <label for="studentName">Student Name</label>
-        <input type="text" id="studentName" name="studentName" placeholder="Enter Name" required>
+        <input type="text" id="studentName" placeholder="Enter full name" required>
       </div>
 
-      <!-- Course Field (Updated) -->
+      <!-- Roll Number / ID -->
+      <div class="form-group">
+        <label for="studentId">Roll Number / ID</label>
+        <input type="text" id="studentId" placeholder="Enter ID number" required>
+      </div>
+
+      <!-- Course Dropdown (Updated) -->
       <div class="form-group">
         <label for="courseSelect">Course</label>
-        <select id="courseSelect" name="course" required>
-          <option value="" disabled selected>Select Course</option>
+        <select id="courseSelect" required>
           <option value="SUBJECT">SUBJECT</option>
           <option value="REGULAR">REGULAR</option>
           <option value="PRIVATE">PRIVATE</option>
         </select>
       </div>
 
-      <!-- Submit Button -->
-      <button type="submit" class="btn-submit">Generate Card</button>
+      <!-- Photo Upload -->
+      <div class="form-group">
+        <label for="photoUpload">Upload Photo</label>
+        <input type="file" id="photoUpload" accept="image/*">
+      </div>
 
+      <!-- Generate Button -->
+      <button type="button" class="btn" onclick="updateCard()">Generate Card</button>
     </form>
   </div>
+
+  <!-- Right Side: Live Card Preview -->
+  <div class="preview-box">
+    <h2>Card Preview</h2>
+    <div class="id-card">
+      <div>
+        <h3>Student Card</h3>
+        <img id="displayPhoto" class="profile-photo" src="https://via.placeholder.com/100" alt="Student Photo">
+        
+        <div class="card-details">
+          <p><strong>Name:</strong> <span id="displayName">Student Name</span></p>
+          <p><strong>ID No:</strong> <span id="displayId">000000</span></p>
+          <p><strong>Course:</strong> <span id="displayCourse">SUBJECT</span></p>
+        </div>
+      </div>
+
+      <div class="card-footer">
+        Official Identity Card
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function updateCard() {
+    // Form Inputs Read
+    const name = document.getElementById('studentName').value || 'Student Name';
+    const id = document.getElementById('studentId').value || '000000';
+    const course = document.getElementById('courseSelect').value;
+    const photoInput = document.getElementById('photoUpload');
+
+    // Display Card Update
+    document.getElementById('displayName').innerText = name;
+    document.getElementById('displayId').innerText = id;
+    document.getElementById('displayCourse').innerText = course;
+
+    // Image Upload Process
+    if (photoInput.files && photoInput.files[0]) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        document.getElementById('displayPhoto').src = e.target.result;
+      }
+      reader.readAsDataURL(photoInput.files[0]);
+    }
+  }
+</script>
 
 </body>
 </html>
