@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Corporate ID Card Generator - Exact Match</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" crossorigin="anonymous"></script>
+
+    <style>
+        :root {
+            --corp-blue: #1d4ed8; 
+            --corp-dark: #1e293b;
+            --badge-green: #1f6b3b;
+            --bg-color: #f1f5f9; 
+            --border-color: #cbd5e1;
+        }
+
+        * { box-sizing: border-box; }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            min-height: 100vh;
+            background-color: var(--bg-color);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: var(--corp-dark);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .admin-container {
+            width: 92%;
+            max-width: 440px;
+            background: #ffffff;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        h2 {
+            margin-top: 0;
+            color: var(--corp-dark);
+            text-transform: uppercase;
+            font-size: 15px;
+            text-align: center;
+            border-bottom: 2px dashed var(--border-color);
+            padding-bottom: 12px;
+            margin-bottom: 16px;
+        }
+
+        .form-box { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
+        .form-box label { font-weight: 700; font-size: 10.5px; text-transform: uppercase; }
+        .form-box input, .form-box select { padding: 9px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; font-family: inherit; }
+
+        .generate-btn {
+            background: #008f39; color: #ffffff; border: none; padding: 12px; font-size: 13px; font-weight: 800; border-radius: 6px; cursor: pointer; width: 100%; text-transform: uppercase; margin-top: 8px;
+        }
+
+        .modal-overlay {
+            display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.85); z-index: 1000; justify-content: center; align-items: center; padding: 10px;
+        }
+
+        .card-container-wrapper {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 420px;
+        }
+
+        .lanyard-strap-back {
+            position: absolute;
+            top: -65px;
+            width: 60px;
+            height: 90px;
+            background: linear-gradient(135deg, #1e40af, #2563eb, #1d4ed8);
+            clip-path: polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%);
+            z-index: 1;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .lanyard-clip {
+            position: absolute;
+            top: 2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 32px;
+            height: 28px;
+            background: linear-gradient(to right, #94a3b8, #cbd5e1, #64748b);
+            border-radius: 4px;
+            z-index: 12;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.4);
+        }
+
+        .lanyard-hook {
+            position: absolute;
+            top: 26px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 14px;
+            height: 18px;
+            background: #475569;
+            border-radius: 2px;
+            z-index: 12;
+        }
+
+        .id-card-wrapper { 
+            background: linear-gradient(
+                115deg, 
+                rgba(255, 255, 255, 1) 0%, 
+                rgba(255, 255, 255, 1) 12%, 
+                rgba(251, 232, 240, 0.8) 25%, 
+                rgba(224, 246, 230, 0.8) 40%, 
+                rgba(224, 238, 250, 0.8) 55%, 
+                rgba(254, 249, 219, 0.6) 70%, 
+                rgba(255, 255, 255, 1) 85%, 
+                rgba(255, 255, 255, 1) 100%
+            ), #ffffff;
+            width: 100%; 
+            border-radius: 12px; 
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(255,255,255,0.9); 
+            position: relative; 
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #d1d5db;
+            z-index: 5;
+            margin-top: 35px;
+        }
+
+        .hole-punch {
+            position: absolute;
+            top: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 12px;
+            background: #0f172a; 
+            border-radius: 10px;
+            box-shadow: inset 0 3px 5px rgba(0,0,0,0.6), 0 1px 0 rgba(255,255,255,0.7);
+            z-index: 10;
+        }
+
+        .id-card-header { 
+            margin: 28px 14px 0 14px; 
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            background: #1d4ed8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            min-height: 110px;
+        }
+
+        .id-card-header img {
+            width: 100%;
+            height: auto;
+            max-height: 130px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .id-card-body { 
+            padding: 16px; 
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .profile-section {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding-left: 2px;
+        }
+        
+        .photo-container { 
+            position: relative; 
+            flex-shrink: 0;
+        }
+
+        .id-card-photo { 
+            width: 85px; 
+            height: 100px; 
+            border-radius: 6px; 
+            border: 1px solid #94a3b8;
+            background: #e2e8f0; 
+            object-fit: cover; 
+            display: block; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .verified-badge { 
+            position: absolute; 
+            bottom: -8px; 
+            right: -8px; 
+            width: 28px; 
+            height: 28px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            background: #ffffff;
+            border-radius: 50%;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        .verified-badge svg { width: 24px; height: 24px; }
+
+        .info-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .id-card-name { 
+            color: #000000; 
+            font-size: 20px; 
+            font-weight: 800; 
+            margin: 0; 
+            text-transform: uppercase; 
+            letter-spacing: -0.5px; 
+        }
+
+        .id-card-id { 
+            color: #334155; 
+            font-size: 13px; 
+            font-weight: 600; 
+            margin-top: 2px;
+            margin-bottom: 8px; 
+            text-transform: uppercase; 
+        }
+
+        .plan-badge-container {
+            display: flex;
+            border-radius: 6px;
+            overflow: hidden;
+            font-size: 11px;
+            font-weight: 700;
+            color: #ffffff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .plan-badge-main { background: var(--corp-blue); padding: 4px 16px; text-transform: uppercase; }
+
+        .details-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: transparent; 
+        }
+
+        .details-table td {
+            border: 1px solid #64748b; 
+            padding: 6px 8px;
+            vertical-align: top;
+            width: 33.33%;
+        }
+        .details-table td[colspan="2"] { width: 66.66%; }
+
+        .details-table .label {
+            display: block; font-size: 8.5px; color: #475569; text-transform: uppercase; margin-bottom: 2px; font-weight: 600;
+        }
+
+        .details-table .val {
+            display: block; font-size: 12px; color: #000000; font-weight: 800; text-transform: uppercase;
+        }
+        
+        .id-card-footer { 
+            background: #1d4ed8;
+            color: #ffffff; 
+            text-align: center; 
+            padding: 7px 10px; 
+            font-size: 8px; 
+            font-weight: 800; 
+            text-transform: uppercase; 
+            letter-spacing: 0.5px;
+            border-bottom-left-radius: 12px;
+            border-bottom-right-radius: 12px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer-whatsapp {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .modal-actions { display: flex; gap: 8px; margin-top: 14px; width: 100%; }
+        .modal-btn { flex: 1; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: 700; text-transform: uppercase; font-size: 12px; color: #fff; }
+        .btn-download { background: #008f39; }
+        .btn-close { background: #475569; }
+    </style>
+</head>
+<body>
+
+    <div class="admin-container">
+        <h2>🔒 Corporate ID Maker</h2>
+        
+        <div class="form-box">
+            <label>Issue Date *</label>
+            <input type="date" id="inputDate">
+        </div>
+
+        <div class="form-box">
+            <label>Full Name *</label>
+            <input type="text" id="inputName" placeholder="Enter full name" value="CHRIS ADAMS">
+        </div>
+
+        <div class="form-box">
+            <label>Select Plan *</label>
+            <select id="inputPlan">
+                <option value="FREE PLAN">FREE PLAN</option> <!-- Added Free Plan -->
+                <option value="PRO">PRO</option>
+                <option value="GEN X">GEN X</option>
+                <option value="PRIME" selected>PRIME</option>
+                <option value="PREMIUM">PREMIUM</option>
+                <option value="ENTERPRISE">ENTERPRISE</option>
+            </select>
+        </div>
+
+        <div class="form-box">
+            <label>Department / Course *</label>
+            <select id="inputCourse">
+                <option value="XI Commerce">XI Commerce</option>
+                <option value="XII Commerce" selected>XII Commerce</option>
+                <option value="Other">Other</option>
+            </select>
+        </div>
+
+        <div class="form-box">
+            <label>Division & Roll No. *</label>
+            <input type="text" id="inputDivRoll" value="A / 42">
+        </div>
+
+        <div class="form-box">
+            <label>Focus / Subject *</label>
+            <input type="text" id="inputSubject" value="ECONOMICS">
+        </div>
+
+        <div class="form-box">
+            <label>Organization / College *</label>
+            <input type="text" id="inputCollege" value="929 Digital Desk">
+        </div>
+
+        <div class="form-box">
+            <label>Custom Header Banner Image *</label>
+            <input type="file" id="inputBannerImage" accept="image/*">
+        </div>
+
+        <div class="form-box">
+            <label>Passport Photo *</label>
+            <input type="file" id="inputPhoto" accept="image/*">
+        </div>
+
+        <button class="generate-btn" onclick="generateIdCard()">Generate Corporate ID</button>
+    </div>
+
+    <div class="modal-overlay" id="idCardModal">
+        <div class="card-container-wrapper" id="idCardCaptureArea">
+            <div class="lanyard-strap-back"></div>
+            <div class="lanyard-clip"></div>
+            <div class="lanyard-hook"></div>
+
+            <div class="id-card-wrapper">
+                <div class="hole-punch" id="holePunchDiv"></div>
+                
+                <div class="id-card-header">
+                    <img id="idCardHeaderImg" src="" alt="Banner Logo" crossorigin="anonymous">
+                </div>
+                
+                <div class="id-card-body">
+                    <div class="profile-section">
+                        <div class="photo-container">
+                            <img src="" alt="Photo" class="id-card-photo" id="idCardImage">
+                            <div class="verified-badge">
+                                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 2L3 6V11C3 16.55 6.84 21.74 12 23C17.16 21.74 21 16.55 21 11V6L12 2Z" fill="#118375"/>
+                                    <path d="M10.5 16.5L6.5 12.5L7.91 11.09L10.5 13.67L16.09 8.09L17.5 9.5L10.5 16.5Z" fill="white"/>
+                                </svg>
+                            </div>
+                        </div>
+
+                        <div class="info-wrapper">
+                            <h3 class="id-card-name" id="idCardName">CHRIS ADAMS</h3>
+                            <div class="id-card-id" id="idCardNumber">PRM-JMS-771</div>
+                            <div class="plan-badge-container">
+                                <div class="plan-badge-main" id="idCardPlanMain">PRIME</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <table class="details-table">
+                        <tr>
+                            <td>
+                                <span class="label">Issued:</span>
+                                <span class="val" id="idCardDate">AUG 15, 2026</span>
+                            </td>
+                            <td>
+                                <span class="label">Dept:</span>
+                                <span class="val" id="idCardCourse">XII Commerce</span>
+                            </td>
+                            <td>
+                                <span class="label">Roll/Div:</span>
+                                <span class="val" id="idCardDivRoll">A / 42</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                <span class="label">Focus:</span>
+                                <span class="val" id="idCardSubject">ECONOMICS</span>
+                            </td>
+                            <td>
+                                <span class="label">College:</span>
+                                <span class="val" id="idCardCollege" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">929 Digital Desk</span>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <div class="id-card-footer">
+                    <span>VALID AS PER PLAN REGISTERED</span>
+                    <span class="footer-whatsapp">
+                        <svg style="width:11px; height:11px; fill:#ffffff;" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+                        +1 (555) 956-5917
+                    </span>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="modal-btn btn-download" onclick="downloadIdCard()">📥 Download ID</button>
+                <button class="modal-btn btn-close" onclick="closeModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            document.getElementById('inputDate').value = `${yyyy}-${mm}-${dd}`;
+            
+            document.getElementById('idCardHeaderImg').src = 'https://placehold.co/388x128/1d4ed8/ffffff?text=Upload+Banner+Logo';
+            
+            generateIdCard();
+        });
+
+        function getRandomNum(length) {
+            const chars = '0123456789';
+            let result = '';
+            for (let i = 0; i < length; i++) result += chars.charAt(Math.floor(Math.random() * chars.length));
+            return result;
+        }
+
+        function generateIdCard() {
+            const name = document.getElementById("inputName").value || "CHRIS ADAMS";
+            const planSelect = document.getElementById("inputPlan");
+            const planMain = planSelect.options[planSelect.selectedIndex].value;
+
+            const course = document.getElementById("inputCourse").value;
+            const divRoll = document.getElementById("inputDivRoll").value;
+            const subject = document.getElementById("inputSubject").value;
+            const college = document.getElementById("inputCollege").value;
+            
+            const customDate = document.getElementById("inputDate").value;
+            const finalDateObj = customDate ? new Date(customDate) : new Date();
+
+            const generatedId = `PRM-JMS-${getRandomNum(3)}`; 
+
+            document.getElementById("idCardDate").innerText = finalDateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).toUpperCase();
+            
+            document.getElementById("idCardName").innerText = name;
+            document.getElementById("idCardCourse").innerText = course;
+            document.getElementById("idCardDivRoll").innerText = divRoll;
+            document.getElementById("idCardSubject").innerText = subject;
+            document.getElementById("idCardCollege").innerText = college;
+            
+            document.getElementById("idCardPlanMain").innerText = planMain;
+            document.getElementById("idCardNumber").innerText = generatedId;
+
+            const bannerInput = document.getElementById('inputBannerImage');
+            if (bannerInput.files && bannerInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = e => document.getElementById('idCardHeaderImg').src = e.target.result;
+                reader.readAsDataURL(bannerInput.files[0]);
+            }
+
+            const fileInput = document.getElementById('inputPhoto');
+            if (fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = e => document.getElementById('idCardImage').src = e.target.result;
+                reader.readAsDataURL(fileInput.files[0]);
+            } else {
+                document.getElementById('idCardImage').src = 'https://placehold.co/85x100/cbd5e1/475569?text=Photo';
+            }
+
+            document.getElementById("idCardModal").style.display = "flex";
+        }
+
+        function downloadIdCard() {
+            const holePunch = document.getElementById("holePunchDiv");
+            const clip = document.querySelector('.lanyard-clip');
+            const hook = document.querySelector('.lanyard-hook');
+            const strap = document.querySelector('.lanyard-strap-back');
+            
+            holePunch.style.display = 'none';
+            if (clip) clip.style.display = 'none';
+            if (hook) hook.style.display = 'none';
+            if (strap) strap.style.display = 'none';
+
+            const card = document.getElementById("idCardCaptureArea");
+            html2canvas(card, { scale: 3, useCORS: true, backgroundColor: null }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'Corporate-ID-Card.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                
+                holePunch.style.display = 'block';
+                if (clip) clip.style.display = 'block';
+                if (hook) hook.style.display = 'block';
+                if (strap) strap.style.display = 'block';
+            });
+        }
+
+        function closeModal() {
+            document.getElementById("idCardModal").style.display = "none";
+        }
+    </script>
+</body>
+</html>
